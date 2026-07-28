@@ -83,12 +83,13 @@ At the start of tasks that create/move/delete files or change module boundaries,
 ```yaml
 architecture:
   style: 'Layered (simple) — Presentation → Application → Domain'
-  status: 'planned — no code committed yet'
+  status: 'scaffolded — solution and projects created, no business logic yet'
   runtime: '.NET 10'
   framework: 'ASP.NET Core Web API (controller-based)'
   persistence: 'none (stateless, in-memory computation only)'
+  solutionFile: 'TipSplitter.slnx'
   entrypoints:
-    - 'src/TipSplitter.Api (HTTP API, planned)'
+    - 'src/TipSplitter.Api (HTTP API)'
   modules:
     - name: 'TipSplitter.Api'
       role: 'Presentation — controllers, request/response DTOs, DI wiring'
@@ -97,16 +98,18 @@ architecture:
     - name: 'TipSplitter.Domain'
       role: 'Domain — pure calculation logic, value objects, no framework deps'
   tests:
-    - 'tests/TipSplitter.Tests (unit tests, xUnit — planned)'
+    - 'tests/TipSplitter.Tests (xUnit + Shouldly, one shared test project for Domain + Application)'
   shared: []
   boundaries:
     - 'Domain has no dependency on Application or Api.'
     - 'Application depends only on Domain (no ASP.NET Core references).'
     - 'Api depends on Application and Domain, wires DI, exposes HTTP endpoints.'
     - 'No persistence layer — the service is stateless.'
+  knownIssues:
+    - 'NU1903: Microsoft.OpenApi 2.0.0 (transitive via Microsoft.AspNetCore.OpenApi 10.0.9 in TipSplitter.Api) has a known high-severity advisory (GHSA-v5pm-xwqc-g5wc). Not yet pinned to a patched version — user chose to defer this fix.'
 ```
 
-> **Note:** The concrete project layout above (folder names, module split) is a proposal derived from the chosen architecture style. It will be confirmed and finalized during the first implementation spec.
+> **Note:** The concrete project layout above (folder names, module split) matches the actually scaffolded solution as of the Solution-Bootstrap task.
 
 ## 6) Memory Bank (SDD Working Set)
 

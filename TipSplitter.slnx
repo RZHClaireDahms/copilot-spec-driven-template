@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TipSplitter.Api/TipSplitter.Api.csproj" />
+    <Project Path="src/TipSplitter.Application/TipSplitter.Application.csproj" />
+    <Project Path="src/TipSplitter.Domain/TipSplitter.Domain.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TipSplitter.Tests/TipSplitter.Tests.csproj" />
+  </Folder>
+</Solution>
