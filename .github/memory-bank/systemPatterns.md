@@ -3,10 +3,10 @@
 ## Architektur-Stil
 
 - **Einfaches Schichtenmodell** für eine kleine HTTP-API — **umgesetzt** als Solution `TipSplitter.slnx` mit vier Projekten:
-  - **Presentation** (`src/TipSplitter.Api`) — ASP.NET-Core-Controller, Request-/Response-DTOs, DI-Verdrahtung, Fehler-Mapping.
-  - **Application** (`src/TipSplitter.Application`) — Use-Case-Orchestrierung für die Aufteilung; kennt weder HTTP noch ASP.NET Core.
-  - **Domain** (`src/TipSplitter.Domain`) — reine Rechenlogik (z. B. `TipSplitCalculator`), Value Objects, keinerlei Framework-Abhängigkeiten.
-  - **Tests** (`tests/TipSplitter.Tests`) — ein gemeinsames xUnit+Shouldly-Testprojekt für Domain + Application.
+  - **Presentation** (`src/TipSplitter.Api`) — `SplitController` (`POST /split`), `SplitRequest`/`SplitResponse` DTOs (nullable Felder für Pflichtfeld-Validierung), Mapping von `TipSplitValidationException` auf HTTP 400 (`ProblemDetails`).
+  - **Application** (`src/TipSplitter.Application`) — `TipSplitService` orchestriert `TipSplitRequest`/`TipSplitResponse` um die Domain-Berechnung; kennt weder HTTP noch ASP.NET Core.
+  - **Domain** (`src/TipSplitter.Domain`) — `TipSplitCalculator` (reine Rechenlogik inkl. Validierung), `TipSplitResult`, `TipSplitValidationException`; keinerlei Framework-Abhängigkeiten.
+  - **Tests** (`tests/TipSplitter.Tests`) — ein gemeinsames xUnit+Shouldly-Testprojekt für Domain + Application + Api (`WebApplicationFactory<Program>` für Integrationstests).
 - Datenfluss ist strikt einwegs: `Api → Application → Domain`. Rückwärtige Abhängigkeiten sind nicht erlaubt (über Projekt-Referenzen technisch erzwungen).
 
 ## Zentrale Entscheidungen

@@ -20,6 +20,7 @@
 
 - Ausführen: `dotnet test`
 - Assertions: **Shouldly** (`x.ShouldBe(...)`), Test-Framework xUnit.
+- Api-Integrationstests: `Microsoft.AspNetCore.Mvc.Testing` (`WebApplicationFactory<Program>`); `Program.cs` hat dazu ein `public partial class Program;` am Ende.
 - Vorgehen: **TDD in Baby-Steps** — pro Verhaltensschritt genau ein neuer, initial roter Test.
 - Erst wenn der Test steht und rot ist, wartet der Agent auf ein explizites **„go“** vom Nutzer, bevor die Implementierung erfolgt.
 

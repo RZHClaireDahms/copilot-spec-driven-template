@@ -83,22 +83,22 @@ At the start of tasks that create/move/delete files or change module boundaries,
 ```yaml
 architecture:
   style: 'Layered (simple) — Presentation → Application → Domain'
-  status: 'scaffolded — solution and projects created, no business logic yet'
+  status: 'implemented — first use case (Tip-Split) shipped end-to-end with TDD, 19/19 tests green'
   runtime: '.NET 10'
   framework: 'ASP.NET Core Web API (controller-based)'
   persistence: 'none (stateless, in-memory computation only)'
   solutionFile: 'TipSplitter.slnx'
   entrypoints:
-    - 'src/TipSplitter.Api (HTTP API)'
+    - 'src/TipSplitter.Api (HTTP API) — POST /split'
   modules:
     - name: 'TipSplitter.Api'
-      role: 'Presentation — controllers, request/response DTOs, DI wiring'
+      role: 'Presentation — SplitController (POST /split), SplitRequest/SplitResponse DTOs (nullable fields for required-field validation), maps TipSplitValidationException to HTTP 400 via ProblemDetails'
     - name: 'TipSplitter.Application'
-      role: 'Application services — orchestrates use case (split calculation)'
+      role: 'Application services — TipSplitService orchestrates TipSplitRequest/TipSplitResponse around the Domain calculation'
     - name: 'TipSplitter.Domain'
-      role: 'Domain — pure calculation logic, value objects, no framework deps'
+      role: 'Domain — TipSplitCalculator (pure calculation + validation), TipSplitResult, TipSplitValidationException; no framework deps'
   tests:
-    - 'tests/TipSplitter.Tests (xUnit + Shouldly, one shared test project for Domain + Application)'
+    - 'tests/TipSplitter.Tests (xUnit + Shouldly, one shared test project for Domain + Application + Api via WebApplicationFactory<Program>)'
   shared: []
   boundaries:
     - 'Domain has no dependency on Application or Api.'

@@ -2,23 +2,24 @@
 
 Last updated: 2026-07-28
 Current branch: (unbekannt — im Zweifel `main`)
-Current phase: Solution-Bootstrap abgeschlossen → bereit für erste fachliche Spec (TDD)
+Current phase: Erster fachlicher Use Case (Tip-Split-Endpunkt) implementiert und abgeschlossen → bereit für nächste Spec
 
 ## Now
 
-Solution + Projektstruktur (`Api`/`Application`/`Domain`/`Tests`) stehen, bauen und testen grün. Als Nächstes: erste fachliche Spec für den Tip-Split-Endpunkt via `/specify`.
+`tip-split-endpoint.md` ist vollständig umgesetzt (Domain, Application, Api) und nach `.github/specs/done/` verschoben. 19/19 Tests grün, `dotnet format --verify-no-changes` sauber. Als Nächstes: neue Spec (`/specify`) oder Follow-ups (CI-Workflow, NU1903-Fix, OpenAPI-Sichtbarkeit) angehen.
 
 ## Active Spec
 
-- Spec: `.github/specs/active/tip-split-endpoint.md` (Status: In Progress)
-- Aktueller Task: TDD-Baby-Steps gemäß `/plan` — Test **A1** (`TipSplitCalculatorTests.Split_100Bill_0PercentTip_4People_ReturnsEqualShares`) ist geschrieben und rot (`NotImplementedException`). Warte auf „go“ vom Nutzer für die minimale Implementierung.
-- Bestätigter HTTP-Contract: `POST /split`, Request `{amount, tipPercent, people}`, Response `{perPerson, totalTip}` (kein Echo der Eingaben).
-- Akzeptanzkriterien im Fokus: Domäne-Abschnitt der Spec (Phase A des Plans), danach Application (Phase B), dann Api (Phase C).
+- Spec: — (keine aktiv; `tip-split-endpoint.md` ist nach `done/` verschoben, Status: Implemented)
+- Aktueller Task: keiner offen; wartet auf nächste Nutzeranweisung (`/specify` für neuen Use Case oder Follow-up-Task).
+- Umgesetzter HTTP-Contract: `POST /split`, Request `{amount, tipPercent, people}`, Response `{perPerson, totalTip}` (kein Echo der Eingaben).
 
 ## Changed Recently
 
-- 2026-07-28: `/plan` für `tip-split-endpoint.md` erstellt; Nutzer hat HTTP-Contract-Abweichungen bestätigt (Route `/split` statt `/api/split`, Felder `amount`/`tipPercent`/`people`, Response nur `perPerson`+`totalTip`). Spec aktualisiert (Resolved Decisions, Requirements, Acceptance Criteria) und von `backlog/` nach `active/` verschoben.
-- 2026-07-28: Erster TDD-Baby-Step gestartet — `TipSplitCalculator.Split(...)` in `TipSplitter.Domain` als Skeleton mit `NotImplementedException` angelegt, Test A1 geschrieben und als rot verifiziert (`dotnet test`).
+- 2026-07-28: `tip-split-endpoint.md` vollständig via TDD-Baby-Steps umgesetzt (Phasen A–D). Domain: `TipSplitCalculator` (Berechnung, kaufmännische Rundung, Restcent-Verteilung an Index 0, Validierung via `TipSplitValidationException`). Application: `TipSplitService`/`TipSplitRequest`/`TipSplitResponse` delegieren an die Domain. Api: `SplitController` (`POST /split`), `SplitRequest`/`SplitResponse` mit nullable Feldern für Pflichtfeld-Validierung, `TipSplitValidationException` → HTTP 400 via `ProblemDetails`. 19/19 Tests grün (`ToolchainSmokeTests` + 11 Domain- + 2 Application- + 6 Api-Tests via `WebApplicationFactory<Program>`), `dotnet format --verify-no-changes` sauber.
+- 2026-07-28: `TipSplitter.Tests.csproj` um `Microsoft.AspNetCore.Mvc.Testing` und eine Projektreferenz auf `TipSplitter.Api` erweitert; `Program.cs` um `public partial class Program;` ergänzt (Voraussetzung für `WebApplicationFactory<Program>`).
+- 2026-07-28: Spec nach `done/` verschoben (Status: Implemented), Acceptance Criteria abgehakt, Resolved Decisions/Open Questions aktualisiert. Architektur-Snapshot in `.github/copilot-instructions.md` sowie `systemPatterns.md`/`techContext.md` synchronisiert (Modul-/Namensdetails, Api-Integrationstest-Infrastruktur).
+- 2026-07-28: `/plan` für `tip-split-endpoint.md` erstellt; Nutzer hat HTTP-Contract-Abweichungen bestätigt (Route `/split` statt `/api/split`, Felder `amount`/`tipPercent`/`people`, Response nur `perPerson`+`totalTip`).
 - 2026-07-28: `/setupSpecs` durchgeführt — `DocLanguage=German`, Projektziel „Tip Splitter“ gesetzt, Style- und Workflow-Präferenzen (TDD Baby-Steps, `dotnet format`- und `dotnet test`-Gate) in `.github/copilot-instructions.md` ergänzt.
 - 2026-07-28: Spec `solution-bootstrap.md` erstellt, umgesetzt und nach `.github/specs/done/` verschoben (Status: Implemented).
 - 2026-07-28: Solution `TipSplitter.slnx` mit vier Projekten angelegt: `src/TipSplitter.Domain`, `src/TipSplitter.Application`, `src/TipSplitter.Api` (Controller-basiert), `tests/TipSplitter.Tests` (xUnit + Shouldly). Referenzen gemäß Architektur-Boundaries gesetzt (`Api → Application, Domain`; `Application → Domain`; `Tests → Domain, Application`).
@@ -28,23 +29,23 @@ Solution + Projektstruktur (`Api`/`Application`/`Domain`/`Tests`) stehen, bauen 
 
 ## Decisions in Flight
 
-- Keine offenen Architektur-Entscheidungen aus dem Solution-Bootstrap mehr — beide Open Questions der Spec wurden entschieden (ein gemeinsames Testprojekt, ein Root-`.editorconfig`).
+- Keine offenen Architektur-Entscheidungen — HTTP-Contract der Tip-Split-Spec ist entschieden und umgesetzt (siehe `done/tip-split-endpoint.md`, Resolved Decisions).
 
 ## Blockers / Questions
 
 - `NU1903`-Sicherheitswarnung (`Microsoft.OpenApi` 2.0.0, transitiv über `Microsoft.AspNetCore.OpenApi` 10.0.9 in `TipSplitter.Api`) ist noch offen — Fix (Pin auf 2.7.5) wurde vorgeschlagen, vom Nutzer aber zurückgestellt. Kein Blocker für weitere Arbeit, aber vor Produktiv-Einsatz zu klären.
-- Wie soll der HTTP-Endpunkt genau aussehen (Route, Verb, Request-/Response-Format)? → klären in der nächsten fachlichen Spec.
-- Rundungsregel für Beträge pro Person (kaufmännisch? auf Cent? Rest an eine Person?) → klären in der nächsten fachlichen Spec.
+- Obergrenzen für `amount`/`people` (z. B. Maximalwerte) sind bewusst nicht validiert — offen für eine künftige Spec.
+- OpenAPI/Swagger-Sichtbarkeit des `/split`-Endpunkts wurde nicht verifiziert — offen für eine künftige Task.
 
 ## Next
 
-1. „go“ vom Nutzer abwarten, dann minimale Implementierung für Test A1 (`TipSplitCalculator.Split` happy path even).
-2. Weitere Domain-Baby-Steps (A2–A11) gemäß Plan, dann Application (B1–B2), dann Api (C1–C6).
-3. GitHub-Actions-CI-Workflow (`dotnet format --verify-no-changes`, `dotnet build`, `dotnet test`) einrichten.
-4. `NU1903`-Fix (Microsoft.OpenApi auf 2.7.5 pinnen) bei Gelegenheit nachholen.
+1. Nächste fachliche Spec via `/specify` (falls weitere Use Cases geplant sind) oder Follow-up-Tasks priorisieren.
+2. GitHub-Actions-CI-Workflow (`dotnet format --verify-no-changes`, `dotnet build`, `dotnet test`) einrichten.
+3. `NU1903`-Fix (Microsoft.OpenApi auf 2.7.5 pinnen) bei Gelegenheit nachholen.
+4. Optional: OpenAPI-Sichtbarkeit für `/split` prüfen/dokumentieren, Obergrenzen für Eingaben klären.
 
 ## Validation
 
-- Done: SDD-Bootstrap (Memory Bank + Instructions + Architektur-Snapshot); Solution-Bootstrap (Projekte, Referenzen, `.editorconfig`, xUnit+Shouldly) — Spec in `done/`.
-- Pending: erste fachliche Spec, erster roter TDD-Test, CI-Workflow, NU1903-Fix.
+- Done: SDD-Bootstrap (Memory Bank + Instructions + Architektur-Snapshot); Solution-Bootstrap (Projekte, Referenzen, `.editorconfig`, xUnit+Shouldly); Tip-Split-Endpunkt (Domain + Application + Api, 19/19 Tests grün, Formatter sauber) — beide Specs in `done/`.
+- Pending: CI-Workflow, NU1903-Fix, OpenAPI-Sichtbarkeit, Obergrenzen-Validierung, ggf. weitere fachliche Specs.
 - Known issues: NU1903 (Microsoft.OpenApi 2.0.0, siehe Blockers).
