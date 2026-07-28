@@ -10,12 +10,15 @@ Solution + Projektstruktur (`Api`/`Application`/`Domain`/`Tests`) stehen, bauen 
 
 ## Active Spec
 
-- Spec: — (keine aktiv; `solution-bootstrap.md` ist nach `done/` verschoben)
-- Aktueller Task: `/specify` für den ersten fachlichen Use Case (Tip-Split-Endpunkt) ausführen
-- Akzeptanzkriterien im Fokus: t. b. d. mit der nächsten Spec
+- Spec: `.github/specs/active/tip-split-endpoint.md` (Status: In Progress)
+- Aktueller Task: TDD-Baby-Steps gemäß `/plan` — Test **A1** (`TipSplitCalculatorTests.Split_100Bill_0PercentTip_4People_ReturnsEqualShares`) ist geschrieben und rot (`NotImplementedException`). Warte auf „go“ vom Nutzer für die minimale Implementierung.
+- Bestätigter HTTP-Contract: `POST /split`, Request `{amount, tipPercent, people}`, Response `{perPerson, totalTip}` (kein Echo der Eingaben).
+- Akzeptanzkriterien im Fokus: Domäne-Abschnitt der Spec (Phase A des Plans), danach Application (Phase B), dann Api (Phase C).
 
 ## Changed Recently
 
+- 2026-07-28: `/plan` für `tip-split-endpoint.md` erstellt; Nutzer hat HTTP-Contract-Abweichungen bestätigt (Route `/split` statt `/api/split`, Felder `amount`/`tipPercent`/`people`, Response nur `perPerson`+`totalTip`). Spec aktualisiert (Resolved Decisions, Requirements, Acceptance Criteria) und von `backlog/` nach `active/` verschoben.
+- 2026-07-28: Erster TDD-Baby-Step gestartet — `TipSplitCalculator.Split(...)` in `TipSplitter.Domain` als Skeleton mit `NotImplementedException` angelegt, Test A1 geschrieben und als rot verifiziert (`dotnet test`).
 - 2026-07-28: `/setupSpecs` durchgeführt — `DocLanguage=German`, Projektziel „Tip Splitter“ gesetzt, Style- und Workflow-Präferenzen (TDD Baby-Steps, `dotnet format`- und `dotnet test`-Gate) in `.github/copilot-instructions.md` ergänzt.
 - 2026-07-28: Spec `solution-bootstrap.md` erstellt, umgesetzt und nach `.github/specs/done/` verschoben (Status: Implemented).
 - 2026-07-28: Solution `TipSplitter.slnx` mit vier Projekten angelegt: `src/TipSplitter.Domain`, `src/TipSplitter.Application`, `src/TipSplitter.Api` (Controller-basiert), `tests/TipSplitter.Tests` (xUnit + Shouldly). Referenzen gemäß Architektur-Boundaries gesetzt (`Api → Application, Domain`; `Application → Domain`; `Tests → Domain, Application`).
@@ -35,8 +38,8 @@ Solution + Projektstruktur (`Api`/`Application`/`Domain`/`Tests`) stehen, bauen 
 
 ## Next
 
-1. `/specify` für den ersten fachlichen Use Case (Tip-Split-Endpunkt) ausführen.
-2. Danach `/plan` bzw. direktes TDD: erster fehlschlagender Test mit `NotImplementedException`, dann Stopp bis „go“.
+1. „go“ vom Nutzer abwarten, dann minimale Implementierung für Test A1 (`TipSplitCalculator.Split` happy path even).
+2. Weitere Domain-Baby-Steps (A2–A11) gemäß Plan, dann Application (B1–B2), dann Api (C1–C6).
 3. GitHub-Actions-CI-Workflow (`dotnet format --verify-no-changes`, `dotnet build`, `dotnet test`) einrichten.
 4. `NU1903`-Fix (Microsoft.OpenApi auf 2.7.5 pinnen) bei Gelegenheit nachholen.
 
