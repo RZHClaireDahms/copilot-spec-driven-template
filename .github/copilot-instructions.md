@@ -20,14 +20,17 @@ You are the **Spec-Driven Development (SDD)** assistant for this repository. Alw
 ## 2) Repository Settings (managed by /setupSpecs)
 
 ```yaml
-DocLanguage: English # default; /setupSpecs may change this
-LastUpdated: '2026-02-06'
+DocLanguage: German # project docs (Memory Bank + specs) are written in German
+LastUpdated: '2026-07-28'
+ProjectName: 'Tip Splitter'
 ```
 
 ## 3) Goal / Scope
 
-- Primary goal: provide a clean **Spec-Driven Development** workflow powered by GitHub Copilot in VS Code.
-- Scope includes: spec documents, architecture snapshot, Memory Bank maintenance, and code generation aligned to style rules.
+- Primary goal: build **Tip Splitter** — a small HTTP service that fairly splits a restaurant bill across N people. Inputs: bill amount, tip percentage, number of people. Outputs: amount per person and total tip.
+- Explicit non-goals: no database, no frontend, no authentication/login.
+- Target users: restaurant guests (indirectly via the service consumer).
+- Scope of this repo also includes: SDD workflow (specs, architecture snapshot, Memory Bank) and CI/quality gates that the assistant must respect.
 
 ## 4) Style & Output Preferences (MUST MAINTAIN)
 
@@ -45,8 +48,25 @@ If a user asks to have existing code **rewritten** or **written differently** (f
 
 ### Current preferences
 
+#### Coding style
+
 - **Comments**: Do not add comments in generated code unless explicitly requested.
-- **Formatting**: Follow the project's formatter / linter configuration when present.
+- **Formatting**: Follow the project's formatter / linter configuration (`.editorconfig` + `dotnet format`).
+- **Language & framework conventions**: Use idiomatic modern C# for .NET 10 (file-scoped namespaces, `nullable enable`, primary constructors where they help clarity). Prefer controller-based ASP.NET Core Web API endpoints (per user choice).
+
+#### Workflow — TDD baby-steps (MUST FOLLOW)
+
+- Implement in **baby-steps via TDD**. One tiny behavior at a time.
+- **Test first, then STOP.** Write exactly one failing test that expresses the next behavior. The production code under test must throw `NotImplementedException` (or equivalent) so the test fails for the intended reason.
+- **Do NOT start the implementation on your own.** After the failing test is in place, wait for the user's explicit **"go"** before writing any production code.
+- Only after "go": implement the minimum code needed to make that one test green. Then stop and propose the next test.
+- Never batch multiple behaviors into one test or one implementation step.
+
+#### Quality gates (MUST run after each completed task)
+
+1. Run `dotnet format` (driven by `.editorconfig`). Any warnings or errors reported must be fixed by the assistant in the same change set.
+2. Run `dotnet test`. If any test is red, the assistant fixes the root cause before ending the turn.
+3. A `.editorconfig` following .NET best practices must exist at the repo root. If it is missing, create it as part of the next code-touching task (before writing new production code).
 
 ## 5) Architecture & Design Snapshot (MUST SYNC)
 
@@ -62,14 +82,31 @@ At the start of tasks that create/move/delete files or change module boundaries,
 
 ```yaml
 architecture:
-  style: 'TBD'
+  style: 'Layered (simple) — Presentation → Application → Domain'
+  status: 'planned — no code committed yet'
+  runtime: '.NET 10'
+  framework: 'ASP.NET Core Web API (controller-based)'
+  persistence: 'none (stateless, in-memory computation only)'
   entrypoints:
-    - 'TBD'
-  modules: []
+    - 'src/TipSplitter.Api (HTTP API, planned)'
+  modules:
+    - name: 'TipSplitter.Api'
+      role: 'Presentation — controllers, request/response DTOs, DI wiring'
+    - name: 'TipSplitter.Application'
+      role: 'Application services — orchestrates use case (split calculation)'
+    - name: 'TipSplitter.Domain'
+      role: 'Domain — pure calculation logic, value objects, no framework deps'
+  tests:
+    - 'tests/TipSplitter.Tests (unit tests, xUnit — planned)'
   shared: []
   boundaries:
-    - 'TBD'
+    - 'Domain has no dependency on Application or Api.'
+    - 'Application depends only on Domain (no ASP.NET Core references).'
+    - 'Api depends on Application and Domain, wires DI, exposes HTTP endpoints.'
+    - 'No persistence layer — the service is stateless.'
 ```
+
+> **Note:** The concrete project layout above (folder names, module split) is a proposal derived from the chosen architecture style. It will be confirmed and finalized during the first implementation spec.
 
 ## 6) Memory Bank (SDD Working Set)
 
